@@ -1,27 +1,9 @@
-from Bio.PDB import PDBList
-from Bio.PDB.Polypeptide import is_aa
-from Bio.SeqUtils import seq1
 from Bio.PDB import PPBuilder
 from Bio.SeqUtils import molecular_weight
 from collections import Counter
 from src.utils.download_pdb import download_pdb
 from src.analysis.residue_analysis import extract_residues
 from src.analysis.motif_search import find_motif
-
-def download_pdb(pdb_id: str, output_dir: str = "data/pdb"):
-    """
-    Скачивает структуру белка из Protein Data Bank.
-    """
-
-    pdbl = PDBList()
-
-    filename = pdbl.retrieve_pdb_file(
-        pdb_id,
-        pdir=output_dir,
-        file_format="pdb"
-    )
-
-    return filename
 
 from Bio.PDB import PDBParser
 

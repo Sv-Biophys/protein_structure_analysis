@@ -1,3 +1,5 @@
-from Bio.PDB import PDBParser
+from src.analysis.structure_analysis import main
 
-print("BioPython успешно подключён!")
+
+if __name__ == "__main__":
+    main()
