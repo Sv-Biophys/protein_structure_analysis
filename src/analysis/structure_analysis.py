@@ -4,6 +4,9 @@ from Bio.SeqUtils import seq1
 from Bio.PDB import PPBuilder
 from Bio.SeqUtils import molecular_weight
 from collections import Counter
+from src.utils.download_pdb import download_pdb
+from src.analysis.residue_analysis import extract_residues
+from src.analysis.motif_search import find_motif
 
 def download_pdb(pdb_id: str, output_dir: str = "data/pdb"):
     """
@@ -30,8 +33,8 @@ def load_structure(pdb_file: str):
     parser = PDBParser(QUIET=True)
 
     structure = parser.get_structure(
-        id="protein",
-        file=pdb_file
+        "protein",
+        pdb_file
     )
 
     return structure
@@ -93,6 +96,7 @@ def save_report(report, filename):
         file.write("\n".join(report))
 
 def main():
+
     pdb_id = input("Enter PDB ID: ").upper()
 
     filename = download_pdb(pdb_id)
@@ -101,9 +105,26 @@ def main():
 
     structure = load_structure(filename)
 
+    residues = extract_residues(structure)
+
+    motif = input("Введите мотив (например RGD): ").upper()
+    matches = find_motif(residues, motif)
+    if matches:
+        print(f"\nНайдено совпадений: {len(matches)}")
+
+        for match in matches:
+            print(
+                f"{match['sequence']} "
+                f"(позиции {match['start']}-{match['end']})"
+            )
+    else:
+        print("\nМотив не найден.")
+
     report = structure_info(structure)
 
     save_report(report, "results/report.txt")
+
+    print("Анализ завершён.")
 
 if __name__ == "__main__":
     main()
