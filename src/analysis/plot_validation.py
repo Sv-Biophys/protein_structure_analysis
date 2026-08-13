@@ -6,6 +6,12 @@ from src.analysis.hydrophobicity import (
     calculate_hydrophobicity_profile,
 )
 from src.analysis.tm_analysis import find_hydrophobic_peaks, select_tm_peaks
+from src.analysis.secondary_structure import get_experimental_helices
+from src.analysis.validation import (
+    match_peaks_to_helices,
+    calculate_validation_statistics,
+    calculate_overlap_statistics,
+)
 
 
 def main():
@@ -17,15 +23,23 @@ def main():
     peaks = find_hydrophobic_peaks(positions, profile)
     selected_peaks = select_tm_peaks(peaks, min_distance=20)
 
-    helices = [
-        (9, 31),
-        (36, 63),
-        (80, 101),
-        (104, 128),
-        (130, 155),
-        (164, 192),
-        (200, 226),
-    ]
+    helices = get_experimental_helices()
+
+    matches = match_peaks_to_helices(
+        selected_peaks,
+        helices,
+    )
+
+    validation_stats = calculate_validation_statistics(matches)
+    overlap_stats = calculate_overlap_statistics(matches)
+
+    print("Validation results")
+    print("------------------")
+    print(f"Matched peaks: {overlap_stats['peaks_inside_helices']} / {overlap_stats['total_peaks']}")
+    print(f"Accuracy: {overlap_stats['accuracy']:.2f}")
+    print(f"Mean distance: {validation_stats['mean_error']:.2f} residues")
+    print(f"Maximum distance: {validation_stats['max_error']:.2f} residues")
+    print(f"Minimum distance: {validation_stats['min_error']:.2f} residues")
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
@@ -68,6 +82,7 @@ def main():
         dpi=300,
     )
 
+    plt.close()
 
 
 if __name__ == "__main__":
