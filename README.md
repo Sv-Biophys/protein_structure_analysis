@@ -8,7 +8,7 @@ The project combines sequence and structural analysis with hydrophobicity-based 
 
 ## Research question
 
-Can sequence-derived hydrophobicity patterns be used to identify candidate transmembrane regions of bacteriorhodopsin and validate them against experimentally determined structural elements?
+Can sequence-derived hydrophobicity patterns be used to identify candidate transmembrane regions of bacteriorhodopsin and compare them with experimentally determined structural elements?
 
 ---
 
@@ -19,7 +19,7 @@ Can sequence-derived hydrophobicity patterns be used to identify candidate trans
 - **Structure source:** RCSB Protein Data Bank
 - **Primary tool:** Biopython
 
-The structure is downloaded directly from the RCSB PDB and parsed with Biopython's PDB module.
+The structure is downloaded from the RCSB PDB and parsed with Biopython's PDB module.
 
 ---
 
@@ -43,13 +43,13 @@ Hydrophobic peak detection
 Experimental α-helices
       │
       ▼
-Peak–helix validation
+Peak–helix comparison
       │
       ▼
 Visualization
 ```
 
-The project contains two related workflows. The main entry point performs basic sequence and structural analysis, while the validation workflow evaluates hydrophobicity-derived transmembrane candidates against experimentally defined α-helices.
+The project contains two related workflows. The main entry point performs basic sequence and structural analysis, while a separate workflow uses hydrophobicity peaks to compare sequence-based predictions with experimentally defined α-helices.
 
 ---
 
@@ -67,7 +67,7 @@ which calls:
 
 The script downloads a PDB structure, parses the selected chain, reports basic structural information, extracts the amino-acid sequence from peptide fragments, and optionally searches the sequence for a user-provided motif.
 
-The resulting structural summary is saved to:
+The structural summary is saved to:
 
 `results/report.txt`
 
@@ -81,7 +81,7 @@ The resulting structural summary is saved to:
 
 ### 4. Secondary-structure reference
 
-`src/analysis/secondary_structure.py` stores the experimentally determined α-helical regions used for structural validation of the hydrophobicity analysis.
+`src/analysis/secondary_structure.py` stores the experimentally determined α-helical regions used as a reference in the hydrophobicity analysis.
 
 For PDB 1C3W, the experimentally defined helices are represented by the following residue ranges:
 
@@ -93,7 +93,7 @@ For PDB 1C3W, the experimentally defined helices are represented by the followin
 - 164–192
 - 200–226
 
-These structural ranges are used as a reference rather than predicted from the sequence.
+These structural ranges are used as experimental reference regions rather than predicted from the sequence.
 
 ---
 
@@ -103,11 +103,11 @@ These structural ranges are used as a reference rather than predicted from the s
 
 `src/analysis/hydrophobicity.py` calculates a Kyte–Doolittle hydrophobicity profile using a sliding window.
 
-The default window size is **19 residues**, corresponding approximately to the length of a membrane-spanning α-helix.
+The default window size is **19 residues**, approximately corresponding to the length of a membrane-spanning α-helix.
 
 ### 6. Hydrophobic peak detection
 
-`src/analysis/tm_analysis.py` provides two related approaches for identifying hydrophobic transmembrane candidates:
+`src/analysis/tm_analysis.py` provides two related approaches for identifying hydrophobic candidates:
 
 - detection of continuous hydrophobic regions;
 - detection and filtering of local hydrophobicity peaks.
@@ -116,23 +116,23 @@ The validation workflow uses the hydrophobic peak approach to identify candidate
 
 ---
 
-## Structural validation
+## Structural comparison
 
-### 7. Peak–helix validation
+### 7. Peak–helix comparison
 
 `src/analysis/validation.py` compares hydrophobic peaks with experimentally determined α-helices.
 
 For each hydrophobic peak, the script calculates its distance from the center of the nearest experimental helix and determines whether the peak lies within the corresponding helix.
 
-The validation reports:
+The comparison reports:
 
 - number of matched peaks;
-- mean distance between predicted peaks and experimental helix centers;
+- mean distance between hydrophobic peaks and experimental helix centers;
 - minimum and maximum distances;
 - number of peaks located within the assigned experimental helices;
 - peak-to-helix accuracy.
 
-For the analyzed 1C3W structure, the current validation produced:
+For the analyzed 1C3W structure, the current result is:
 
 ```text
 Matched peaks: 7 / 7
@@ -140,15 +140,11 @@ Accuracy: 1.00
 Mean distance: 3.5 residues
 ```
 
-These values describe the result for this **single protein structure** and should not be interpreted as a general estimate of the accuracy of hydrophobic transmembrane prediction.
+These values describe the result for this **single protein structure** and should not be interpreted as a general estimate of transmembrane-prediction accuracy.
 
-### 8. Validation visualization
+### 8. Visualization
 
 `src/analysis/plot_validation.py` combines the hydrophobicity profile, detected peaks, and experimentally defined α-helices in a single visualization.
-
-The resulting figure is saved to:
-
-`results/hydrophobicity_validation.png`
 
 ---
 
@@ -156,24 +152,24 @@ The resulting figure is saved to:
 
 - **`src/analysis/residue_analysis.py`** — extracts standard amino-acid residues and residue numbers.
 - **`src/analysis/motif_search.py`** — searches the extracted protein sequence for a user-defined motif.
-- **`src/analysis/secondary_structure.py`** — defines the experimental α-helical reference regions used for validation.
+- **`src/analysis/secondary_structure.py`** — defines the experimental α-helical reference regions.
 - **`src/analysis/hydrophobicity.py`** — calculates the Kyte–Doolittle hydrophobicity profile.
 - **`src/analysis/tm_analysis.py`** — identifies hydrophobic regions and local hydrophobicity peaks.
 - **`src/analysis/validation.py`** — compares hydrophobic peaks with experimental α-helices.
-- **`src/analysis/plot_validation.py`** — visualizes the validation results.
+- **`src/analysis/plot_validation.py`** — visualizes the hydrophobicity and comparison results.
 - **`src/utils/download_pdb.py`** — downloads PDB structures from the RCSB Protein Data Bank.
 
 ---
 
 ## Main findings
 
-For the analyzed bacteriorhodopsin structure 1C3W, the hydrophobicity-based workflow identified seven representative hydrophobic peaks corresponding to the seven experimentally defined α-helical regions.
+For bacteriorhodopsin structure 1C3W, the hydrophobicity-based workflow identified seven representative hydrophobic peaks corresponding to the seven experimentally defined α-helical regions.
 
-All seven detected peaks were matched to experimental helices, with a mean distance of **3.5 residues** between predicted peak positions and experimental helix centers.
+All seven detected peaks were matched to experimental helices, with a mean distance of **3.5 residues** between hydrophobic peak positions and experimental helix centers.
 
-The result demonstrates how a sequence-derived hydrophobicity signal can be connected to experimentally determined three-dimensional structure.
+This provides a simple example of connecting a sequence-derived hydrophobicity signal with experimentally determined three-dimensional structure.
 
-However, because the validation uses a single well-characterized protein, the result demonstrates the **analysis workflow** rather than providing a general estimate of prediction performance.
+Because the comparison is based on a single well-characterized protein, the result describes this particular analysis rather than the general performance of the method.
 
 ---
 
@@ -240,7 +236,7 @@ The main structure-analysis workflow can be launched with:
 python main.py
 ```
 
-The hydrophobicity validation workflow can be launched with:
+The hydrophobicity comparison workflow can be launched with:
 
 ```bash
 python -m src.analysis.plot_validation
@@ -256,7 +252,7 @@ The PDB structure is obtained from the RCSB Protein Data Bank. The downloaded st
 
 The hydrophobicity analysis uses the Kyte–Doolittle scale and a default 19-residue sliding window.
 
-Experimental α-helical regions for PDB 1C3W are explicitly defined in `secondary_structure.py` and are used as the reference for validation.
+Experimental α-helical regions for PDB 1C3W are explicitly defined in `secondary_structure.py` and are used as the reference for comparison.
 
 ---
 
@@ -264,4 +260,4 @@ Experimental α-helical regions for PDB 1C3W are explicitly defined in `secondar
 
 **Analysis completed.**
 
-This project represents the foundation of a broader structural bioinformatics portfolio progressing from protein structure analysis to structure comparison and molecular dynamics analysis.
+The project demonstrates a basic workflow for connecting protein sequence features with experimentally determined structural information.
